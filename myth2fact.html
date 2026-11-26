@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Myth2Fact</title>
+<style>
+:root{--bg:#f6f8fb;--card:#fff;--ink:#1b2430;--mute:#5b6676;--line:#dde3ec;--brand:#2563eb;--brand-ink:#fff;--t:#15803d;--tb:#dcfce7;--f:#b91c1c;--fb:#fee2e2;--u:#a16207;--ub:#fef3c7;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f141b;--card:#18202b;--ink:#eef2f7;--mute:#9aa6b6;--line:#2a3544;--brand:#5b8cff;--brand-ink:#0b1220;--t:#4ade80;--tb:#10301d;--f:#f87171;--fb:#3a1717;--u:#fbbf24;--ub:#35290c}}
+:root[data-theme="dark"]{--bg:#0f141b;--card:#18202b;--ink:#eef2f7;--mute:#9aa6b6;--line:#2a3544;--brand:#5b8cff;--brand-ink:#0b1220;--t:#4ade80;--tb:#10301d;--f:#f87171;--fb:#3a1717;--u:#fbbf24;--ub:#35290c}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;line-height:1.5}
+.wrap{max-width:720px;margin:0 auto;padding:20px 16px 40px}
+header{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;margin-bottom:16px}
+h1{margin:0;font-size:26px;letter-spacing:-.5px}
+h1 span{color:var(--brand)}
+.sub{color:var(--mute);font-size:14px;margin:2px 0 0}
+.score{font-size:14px;color:var(--mute);text-align:right;white-space:nowrap}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;margin-bottom:14px}
+.label{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--mute);margin:0 0 8px}
+select{width:100%;padding:12px;font-size:16px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--ink)}
+.myth{font-size:22px;font-weight:700;line-height:1.3;margin:6px 0 14px}
+.meta{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.chip{font-size:12px;padding:3px 10px;border-radius:99px;border:1px solid var(--line);color:var(--mute)}
+.discuss{background:var(--ub);color:var(--u);border-radius:10px;padding:10px 12px;font-size:14px;margin-bottom:14px}
+.guess{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
+.guess button{padding:10px 4px;font-size:14px;border-radius:10px;border:2px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer;font-weight:600}
+.guess button.sel{border-color:var(--brand);background:var(--bg)}
+.primary{width:100%;padding:14px;font-size:17px;font-weight:700;border:0;border-radius:12px;background:var(--brand);color:var(--brand-ink);cursor:pointer}
+.primary:disabled{opacity:.45;cursor:not-allowed}
+.badge{display:inline-block;font-size:20px;font-weight:800;padding:6px 18px;border-radius:99px;letter-spacing:.04em}
+.TRUE{background:var(--tb);color:var(--t)}.FALSE{background:var(--fb);color:var(--f)}.UNVERIFIED{background:var(--ub);color:var(--u)}
+.result p{margin:10px 0}
+.src{font-size:14px;color:var(--mute);border-top:1px solid var(--line);padding-top:10px;margin-top:12px}
+.row{display:flex;gap:8px;margin-top:14px}
+.row button{flex:1;padding:12px;font-size:15px;font-weight:600;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer}
+.hidden{display:none}
+.fb{font-size:14px;margin:0 0 4px;font-weight:600}
+.bar{height:6px;background:var(--line);border-radius:9px;overflow:hidden;margin-bottom:14px}
+.bar i{display:block;height:100%;background:var(--brand);width:0;transition:width .3s}
+.ask{display:flex;gap:8px}
+.ask input{flex:1;min-width:0;padding:12px;font-size:16px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--ink)}
+.ask button{padding:12px 16px;font-size:15px;font-weight:700;border:0;border-radius:10px;background:var(--brand);color:var(--brand-ink);cursor:pointer;white-space:nowrap}
+.hint{font-size:13px;color:var(--mute);margin:8px 0 0}
+footer{color:var(--mute);font-size:12px;text-align:center;margin-top:20px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <h1>Myth<span>2</span>Fact</h1>
+      <p class="sub">Is that WhatsApp health message true? Think, discuss, then check.</p>
+    </div>
+    <div class="score" id="score">Score 0 / 0</div>
+  </header>
+
+  <div class="card">
+    <p class="label">Quick check · Type a health claim</p>
+    <div class="ask"><input id="q" type="text" placeholder="e.g. hot water cures covid" aria-label="Type a health claim"><button id="go">Check Fact</button></div>
+    <p class="hint">The tool looks for keywords in its 50 verified myths. Or pick a myth below to play as a group.</p>
+  </div>
+
+  <div class="card">
+    <p class="label">Step 1 · Choose a health myth</p>
+    <select id="list" aria-label="Choose a health myth"></select>
+  </div>
+
+  <div class="card">
+    <div class="meta"><span class="chip" id="id"></span><span class="chip" id="cat"></span></div>
+    <p class="label">Step 2 · Read the myth</p>
+    <p class="myth" id="myth"></p>
+    <div class="discuss">💬 Discuss with your group before checking. What do you think, and why?</div>
+    <p class="label">Step 3 · Your group’s answer</p>
+    <div class="guess" id="guess">
+      <button data-g="TRUE">True</button>
+      <button data-g="FALSE">False</button>
+      <button data-g="UNVERIFIED">Unverified</button>
+    </div>
+    <button class="primary" id="check" disabled>Check Myth</button>
+  </div>
+
+  <div class="card result hidden" id="result">
+    <p class="label">Step 4 · Verdict</p>
+    <span class="badge" id="badge"></span>
+    <p class="fb" id="fb"></p>
+    <p id="exp"></p>
+    <div class="src" id="srcline"><b>Trusted source:</b> <span id="source"></span> · <b>Verified:</b> <span id="date"></span></div>
+    <p class="sub" style="margin-top:12px">Now discuss the correct answer with your teacher.</p>
+    <div class="row"><button id="next">Next Myth →</button></div>
+  </div>
+
+  <div class="bar"><i id="prog"></i></div>
+  <footer>Works offline · All content is stored inside this page · Always confirm health decisions with a doctor</footer>
+</div>
+
+<script>
+// Database: add more entries in this same shape to reach 50 myths.
+var DB=[
+{id:"HM001",cat:"Nutrition",myth:"Drinking hot water cures COVID-19",verdict:"FALSE",exp:"Hot water does not cure COVID-19. Medical treatment and vaccination are recommended.",source:"WHO",date:"July 2026"},
+{id:"HM002",cat:"Vaccines",myth:"Vaccines cause autism",verdict:"FALSE",exp:"Many large studies have found no link between vaccines and autism. Vaccines protect children from serious diseases.",source:"WHO",date:"July 2026"},
+{id:"HM003",cat:"Medicines",myth:"Antibiotics cure viral infections",verdict:"FALSE",exp:"Antibiotics work only on bacteria, not on viruses like colds and flu. Using them wrongly can make bacteria resistant.",source:"WHO",date:"July 2026"},
+{id:"HM004",cat:"Hygiene",myth:"Washing hands prevents many diseases",verdict:"TRUE",exp:"Washing hands with soap and water removes germs and helps prevent diarrhoea, colds and many other infections.",source:"WHO",date:"July 2026"},
+{id:"HM005",cat:"Infectious disease",myth:"Mosquitoes spread dengue",verdict:"TRUE",exp:"Dengue spreads through the bite of infected Aedes mosquitoes. Removing standing water helps stop them breeding.",source:"Ministry of Health",date:"July 2026"},
+{id:"HM006",cat:"Nutrition",myth:"Eating carrots improves night vision instantly",verdict:"FALSE",exp:"Carrots contain vitamin A, which is good for eyes, but they do not give instant night vision.",source:"NHS",date:"July 2026"},
+{id:"HM007",cat:"Medicines",myth:"Fever always needs antibiotics",verdict:"FALSE",exp:"Fever is often caused by viruses, and antibiotics do not work on viruses. A doctor should decide the right treatment.",source:"WHO",date:"July 2026"},
+{id:"HM008",cat:"Nutrition",myth:"Fruits & vegetables support immunity",verdict:"TRUE",exp:"A healthy diet with fruits and vegetables gives the body vitamins and minerals it needs to fight infections.",source:"WHO",date:"July 2026"},
+{id:"HM009",cat:"Non-communicable disease",myth:"Diabetes spreads from person to person",verdict:"FALSE",exp:"Diabetes is not infectious. You cannot catch it from someone by touching, sharing food or being near them.",source:"WHO",date:"July 2026"},
+{id:"HM010",cat:"First aid",myth:"ORS prevents dehydration during diarrhoea",verdict:"TRUE",exp:"Oral rehydration solution (ORS) replaces the water and salts lost during diarrhoea and helps prevent dehydration.",source:"WHO",date:"July 2026"},
+{id:"HM011",cat:"COVID-19",myth:"Eating garlic protects you from COVID-19",verdict:"FALSE",exp:"Garlic is healthy food, but there is no evidence that it protects people from COVID-19.",source:"WHO",date:"July 2026"},
+{id:"HM012",cat:"COVID-19",myth:"5G mobile networks spread COVID-19",verdict:"FALSE",exp:"Viruses cannot travel on radio waves or mobile networks. COVID-19 spreads through droplets from infected people.",source:"WHO",date:"July 2026"},
+{id:"HM013",cat:"COVID-19",myth:"Mosquito bites spread COVID-19",verdict:"FALSE",exp:"There is no evidence that mosquitoes spread COVID-19. It spreads mainly between people through droplets.",source:"WHO",date:"July 2026"},
+{id:"HM014",cat:"COVID-19",myth:"Drinking alcohol kills viruses inside the body",verdict:"FALSE",exp:"Drinking alcohol does not kill viruses and is harmful to health.",source:"WHO",date:"July 2026"},
+{id:"HM015",cat:"COVID-19",myth:"Taking a hot bath prevents COVID-19",verdict:"FALSE",exp:"A hot bath does not stop you catching the virus. Normal body temperature stays about the same whatever the bath temperature.",source:"WHO",date:"July 2026"},
+{id:"HM016",cat:"COVID-19",myth:"Herbal drinks can prevent COVID-19",verdict:"UNVERIFIED",exp:"There is no scientific proof that herbal drinks prevent COVID-19. Vaccination and good hygiene are the proven ways to stay protected.",source:"WHO",date:"July 2026"},
+{id:"HM017",cat:"Tobacco",myth:"Smoking harms only the person who smokes",verdict:"FALSE",exp:"Smoke from other people’s cigarettes also harms those nearby, including children.",source:"WHO",date:"July 2026"},
+{id:"HM018",cat:"Safe water",myth:"Boiling drinking water kills germs",verdict:"TRUE",exp:"Boiling water kills most germs that cause diarrhoea and other diseases. Let it cool and store it in a clean, covered container.",source:"WHO",date:"July 2026"},
+{id:"HM019",cat:"Child health",myth:"Babies should get only breast milk for the first six months",verdict:"TRUE",exp:"For the first six months, breast milk gives babies all the food and water they need and protects them from infections.",source:"WHO",date:"July 2026"},
+{id:"HM020",cat:"Nutrition",myth:"Eating too much salt can raise blood pressure",verdict:"TRUE",exp:"Too much salt can lead to high blood pressure, which raises the risk of heart disease and stroke.",source:"WHO",date:"July 2026"},
+{id:"HM021",cat:"Fitness",myth:"Children should be active for about 60 minutes every day",verdict:"TRUE",exp:"Children and teenagers should do an average of about 60 minutes of moderate to vigorous activity a day for strong bones, muscles and a healthy heart.",source:"WHO",date:"July 2026"},
+{id:"HM022",cat:"Infectious disease",myth:"Sleeping under a mosquito net helps prevent malaria",verdict:"TRUE",exp:"Nets stop infected mosquitoes from biting while people sleep. Nets treated with insecticide work even better.",source:"WHO",date:"July 2026"},
+{id:"HM023",cat:"Infectious disease",myth:"Tuberculosis (TB) spreads through the air when an infected person coughs",verdict:"TRUE",exp:"TB germs spread in the air from people with active lung TB. It is curable with the full course of treatment.",source:"WHO",date:"July 2026"},
+{id:"HM024",cat:"Infectious disease",myth:"HIV spreads by hugging or shaking hands",verdict:"FALSE",exp:"HIV does not spread through hugging, shaking hands, sharing food or sitting together.",source:"WHO",date:"July 2026"},
+{id:"HM025",cat:"First aid",myth:"A dog bite wound should be washed with soap and water straight away",verdict:"TRUE",exp:"Washing the wound well for several minutes helps prevent rabies and infection. Then see a doctor quickly.",source:"WHO",date:"July 2026"},
+{id:"HM026",cat:"Nutrition",myth:"Sugary drinks can cause tooth decay and weight gain",verdict:"TRUE",exp:"Drinking sugary drinks often damages teeth and adds extra calories. Water is a better choice.",source:"WHO",date:"July 2026"},
+{id:"HM027",cat:"Tobacco",myth:"E-cigarettes are completely safe for children",verdict:"FALSE",exp:"E-cigarettes contain nicotine, which is addictive and harms the developing brain. They are not safe for children.",source:"WHO",date:"July 2026"},
+{id:"HM028",cat:"Vaccines",myth:"Polio vaccine drops protect children from polio",verdict:"TRUE",exp:"Polio can cause lifelong paralysis. The vaccine protects children, and every dose counts.",source:"WHO",date:"July 2026"},
+{id:"HM029",cat:"Vaccines",myth:"Measles is a harmless illness",verdict:"FALSE",exp:"Measles can cause serious problems such as pneumonia and brain swelling. Two vaccine doses protect against it.",source:"WHO",date:"July 2026"},
+{id:"HM030",cat:"Infectious disease",myth:"Flu is just a bad cold",verdict:"FALSE",exp:"Flu is caused by a different virus and is usually more severe than a cold, with high fever, aches and tiredness.",source:"NHS",date:"July 2026"},
+{id:"HM031",cat:"Medicines",myth:"You can stop antibiotics as soon as you feel better",verdict:"FALSE",exp:"Take antibiotics exactly as the doctor says. Stopping early can leave bacteria alive and help them become resistant.",source:"NHS",date:"July 2026"},
+{id:"HM032",cat:"Sleep",myth:"Children and teenagers need more sleep than adults",verdict:"TRUE",exp:"Growing bodies and brains need extra sleep, usually around 8 to 10 hours for teenagers and more for younger children.",source:"NHS",date:"July 2026"},
+{id:"HM033",cat:"Bones & joints",myth:"Cracking your knuckles causes arthritis",verdict:"FALSE",exp:"Studies have not found a link between cracking knuckles and arthritis.",source:"NHS",date:"July 2026"},
+{id:"HM034",cat:"Infectious disease",myth:"Dengue mosquitoes bite mostly at night",verdict:"FALSE",exp:"Aedes mosquitoes that spread dengue bite mostly during the day, especially early morning and late afternoon.",source:"WHO",date:"July 2026"},
+{id:"HM035",cat:"Infectious disease",myth:"Dengue mosquitoes breed in clean, standing water",verdict:"TRUE",exp:"Aedes mosquitoes lay eggs in clean water kept in buckets, pots, tyres and coolers. Empty and scrub them weekly.",source:"Ministry of Health",date:"July 2026"},
+{id:"HM036",cat:"Safe water",myth:"Cholera spreads through contaminated water or food",verdict:"TRUE",exp:"Cholera germs live in unsafe water and food. Safe water, clean toilets and handwashing prevent it.",source:"WHO",date:"July 2026"},
+{id:"HM037",cat:"Technology & health",myth:"Mobile phones are proven to cause cancer",verdict:"FALSE",exp:"After much research, no harmful health effects from mobile phone use have been proven.",source:"WHO",date:"July 2026"},
+{id:"HM038",cat:"Nutrition",myth:"Detox drinks remove toxins from the body",verdict:"FALSE",exp:"Your liver and kidneys already clean the body. There is no proof that detox drinks do it better.",source:"NHS",date:"July 2026"},
+{id:"HM039",cat:"Child health",myth:"Honey is safe for babies under one year",verdict:"FALSE",exp:"Honey can contain germs that cause a serious illness called infant botulism. Do not give it to babies under 12 months.",source:"NHS",date:"July 2026"},
+{id:"HM040",cat:"Nutrition",myth:"Milk and dairy foods help build strong bones",verdict:"TRUE",exp:"Milk, curd and cheese are rich in calcium, which bones and teeth need to grow strong.",source:"NHS",date:"July 2026"},
+{id:"HM041",cat:"Dental health",myth:"Brushing teeth twice a day helps prevent tooth decay",verdict:"TRUE",exp:"Brushing morning and night with fluoride toothpaste removes germs and protects teeth.",source:"NHS",date:"July 2026"},
+{id:"HM042",cat:"Vaccines",myth:"Vaccines overload a child’s immune system",verdict:"FALSE",exp:"A child’s immune system handles thousands of germs every day. Vaccines use only tiny, safe amounts.",source:"WHO",date:"July 2026"},
+{id:"HM043",cat:"Nutrition",myth:"Vitamin C tablets stop you from getting colds",verdict:"FALSE",exp:"For most people, vitamin C does not prevent colds. Eating a balanced diet is a better way to stay healthy.",source:"NHS",date:"July 2026"},
+{id:"HM044",cat:"Nutrition",myth:"Drinking lemon water every morning boosts immunity",verdict:"UNVERIFIED",exp:"There is no good scientific proof for this. Sleep, exercise and a varied diet matter much more.",source:"NHS",date:"July 2026"},
+{id:"HM045",cat:"Hygiene",myth:"Alcohol-based hand sanitiser can kill germs when soap and water are not available",verdict:"TRUE",exp:"Hand rub with enough alcohol can kill many germs on hands that are not visibly dirty. Soap and water is still best.",source:"WHO",date:"July 2026"},
+{id:"HM046",cat:"Hygiene",myth:"Covering your cough with a tissue or elbow helps stop germs spreading",verdict:"TRUE",exp:"Coughs release tiny droplets with germs. Covering your mouth keeps them from reaching others.",source:"WHO",date:"July 2026"},
+{id:"HM047",cat:"Medicines",myth:"Antibiotics are safe to take without a doctor’s advice",verdict:"FALSE",exp:"Wrong use of antibiotics can cause side effects and make bacteria resistant. Take them only when a doctor prescribes.",source:"WHO",date:"July 2026"},
+{id:"HM048",cat:"Hygiene",myth:"Rinsing hands with water alone removes germs as well as soap does",verdict:"FALSE",exp:"Soap helps lift germs off the skin. Wash with soap and water for at least 20 seconds.",source:"WHO",date:"July 2026"},
+{id:"HM049",cat:"Tobacco",myth:"Chewing tobacco is harmful to health",verdict:"TRUE",exp:"Tobacco in any form, including chewing tobacco, can cause cancer and other serious diseases.",source:"WHO",date:"July 2026"},
+{id:"HM050",cat:"Nutrition",myth:"Using iodised salt helps prevent goitre",verdict:"TRUE",exp:"The body needs iodine to make hormones for healthy growth. Iodised salt helps prevent goitre and learning problems.",source:"WHO",date:"July 2026"}
+];
+var LABEL={TRUE:"True",FALSE:"False",UNVERIFIED:"Unverified"};
+var cur=0,guess=null,done={},correct=0,answered=0;
+var $=function(i){return document.getElementById(i)};
+
+var sel=$("list");
+DB.forEach(function(m,i){var o=document.createElement("option");o.value=i;o.textContent=(i+1)+". "+m.myth;sel.appendChild(o)});
+
+function show(i){
+  cur=i;guess=null;var m=DB[i];sel.value=i;
+  $("id").textContent=m.id;$("cat").textContent=m.cat;$("myth").textContent="“"+m.myth+"”";
+  Array.prototype.forEach.call($("guess").children,function(b){b.classList.remove("sel")});
+  $("check").disabled=true;$("result").classList.add("hidden");
+  update();
+}
+function update(){
+  $("score").textContent="Score "+correct+" / "+answered;
+  $("prog").style.width=(Object.keys(done).length/DB.length*100)+"%";
+}
+$("guess").addEventListener("click",function(e){
+  var g=e.target.getAttribute("data-g");if(!g)return;
+  guess=g;
+  Array.prototype.forEach.call($("guess").children,function(b){b.classList.toggle("sel",b===e.target)});
+  $("check").disabled=false;
+});
+$("check").addEventListener("click",function(){
+  var m=DB[cur];
+  var b=$("badge");b.textContent=LABEL[m.verdict];b.className="badge "+m.verdict;
+  var ok=guess===m.verdict;
+  $("fb").textContent=ok?"Your group got it right! ✅":"Not this time. Your group said "+LABEL[guess]+". ❌";
+  $("srcline").style.display="";$("exp").textContent=m.exp;$("source").textContent=m.source;$("date").textContent=m.date;
+  if(!done[cur]){done[cur]=1;answered++;if(ok)correct++}
+  $("result").classList.remove("hidden");
+  $("result").scrollIntoView({behavior:"smooth",block:"nearest"});
+  update();
+});
+$("next").addEventListener("click",function(){
+  var n=(cur+1)%DB.length;show(n);window.scrollTo({top:0,behavior:"smooth"});
+});
+// Keyword search: typed claim is matched against the words of each stored myth.
+var STOP=("the and for with that this you your they them their when not only all any more most too than then just very every always has have had will should may get gets help helps from are can does").split(" ");
+function stem(w){if(w.length>5&&/ing$/.test(w))w=w.slice(0,-3);if(/oes$/.test(w))return w.slice(0,-2);if(/[^s]s$/.test(w))w=w.slice(0,-1);return w}
+function toks(t){var seen={},out=[];t.toLowerCase().replace(/[^a-z0-9]+/g," ").split(" ").forEach(function(w){if(w.length<3||STOP.indexOf(w)>-1)return;var s=stem(w);if(!seen[s]){seen[s]=1;out.push({w:w,s:s})}});return out}
+DB.forEach(function(m){m.t=toks(m.myth)});
+function search(q){
+  var qt=toks(q),best=-1,bs=0,br=0,bh=[];
+  DB.forEach(function(m,i){
+    var set={};m.t.forEach(function(x){set[x.s]=1});
+    var sc=0,hit=[];qt.forEach(function(x){if(set[x.s]){sc++;hit.push(x.w)}});
+    var r=sc/m.t.length;
+    if(sc>bs||(sc===bs&&sc>0&&r>br)){bs=sc;br=r;best=i;bh=hit}
+  });
+  return bs>=2?{i:best,hit:bh}:null;
+}
+function ask(){
+  var q=$("q").value.trim();if(!q)return;
+  var r=search(q),b=$("badge");
+  if(r){
+    var m=DB[r.i];sel.value=r.i;cur=r.i;
+    b.textContent=LABEL[m.verdict];b.className="badge "+m.verdict;
+    $("fb").textContent="Matched myth "+m.id+": “"+m.myth+"” (keywords: "+r.hit.join(", ")+")";
+    $("exp").textContent=m.exp;$("source").textContent=m.source;$("date").textContent=m.date;
+    $("srcline").style.display="";
+  }else{
+    b.textContent="Not in our database";b.className="badge UNVERIFIED";
+    $("fb").textContent="We could not match “"+q+"” to any of our 50 verified myths.";
+    $("exp").textContent="Treat this message as unverified. Do not forward it. Ask your teacher or check WHO or the Ministry of Health.";
+    $("srcline").style.display="none";
+  }
+  $("result").classList.remove("hidden");
+  $("result").scrollIntoView({behavior:"smooth",block:"nearest"});
+}
+$("go").addEventListener("click",ask);
+$("q").addEventListener("keydown",function(e){if(e.key==="Enter")ask()});
+sel.addEventListener("change",function(){show(+sel.value)});
+show(0);
+</script>
+</body>
+</html>
